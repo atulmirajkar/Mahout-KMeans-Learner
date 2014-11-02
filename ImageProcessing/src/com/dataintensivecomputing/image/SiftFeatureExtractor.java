@@ -126,7 +126,7 @@ public class SiftFeatureExtractor implements PlugIn
 			
 			for ( final Feature f : fs )
 			{
-				bw.write(f.location[0] + " " + f.location[ 1 ] + " " + f.scale + f.orientation + " ");
+				bw.write(f.location[0] + " " + f.location[ 1 ] + " " + f.scale + " " + f.orientation + " ");
 				for(Float i: f.descriptor)
 				{
 					bw.write(i+" ");
