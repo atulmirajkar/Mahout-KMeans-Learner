@@ -126,7 +126,14 @@ public class SiftFeatureExtractor implements PlugIn
 			
 			for ( final Feature f : fs )
 			{
-				bw.write(f.location[0] + " " + f.location[ 1 ] + " " + f.scale + " " + f.orientation + " ");
+				
+				if(f.descriptor.length != 128)
+				{
+					continue;
+				}
+				
+				bw.write(f.location[0] + " " + f.location[1] + " " + f.scale + " " + f.orientation + " ");
+				
 				for(Float i: f.descriptor)
 				{
 					bw.write(i+" ");
@@ -137,6 +144,7 @@ public class SiftFeatureExtractor implements PlugIn
 		
 			}
 		}
+		bw.close();
 		System.out.println( " took " + ( System.currentTimeMillis() - start_time ) + "ms" );
 	}
 	/**

@@ -60,7 +60,8 @@ public class KMeansLearner extends Configured{
 		FileSystem fs = FileSystem.get(conf);
 		Path inPath = new Path(inputPath);
 		Path outPath = new Path(outputPath);
-
+		
+		
 		SequenceFile.Writer writer = SequenceFile.createWriter(fs,conf,outPath,Text.class,VectorWritable.class);
 
 		Text key = new Text();
@@ -90,6 +91,7 @@ public class KMeansLearner extends Configured{
 			
 			value.set(vec);
 			writer.append(key, value);
+			
 		}
 		writer.close();
 	}
@@ -98,15 +100,10 @@ public class KMeansLearner extends Configured{
 	{
 		//read config file
 		Configuration conf = new Configuration();
-        //conf.set("fs.defaultFS", "hdfs://hnname:10001");
 		conf.addResource(new Path("/usr/local/hadoop/conf/core-site.xml"));
-//		conf = getConf();
-//		if(conf==null)
-//		{
-//			
-//			setConf(conf);
-//		}
-		//Configuraton conf = new Configuration();
+		conf.addResource(new Path("/usr/local/hadoop/conf/mapred-site.xml"));
+		conf.addResource(new Path("/usr/local/hadoop/conf/hdfs-site.xml"));
+		
 	 	 
 	    
 		DistanceMeasure measure = new EuclideanDistanceMeasure();
@@ -114,7 +111,7 @@ public class KMeansLearner extends Configured{
 		String sequencePath = ConfigHandler.prop.getProperty("sequencePath");
 		
 		Path sequence = new Path(sequencePath);
-		//FileSystem.get(conf).delete(sequence, true);
+		FileSystem.get(conf).delete(sequence, true);
 		
 		
 		TransformVectorsToSequence(conf, inputPath, sequencePath);
@@ -123,7 +120,7 @@ public class KMeansLearner extends Configured{
 		//InputDriver.runJob(input, sequence, "org.apache.mahout.math.RandomAccessSparseVector");
 		
 		Path output = new Path(outputPath);
-		//FileSystem.get(conf).delete(output, true);
+		FileSystem.get(conf).delete(output, true);
 		
 		Path clusters = new Path(output, Cluster.INITIAL_CLUSTERS_DIR);
 	    clusters = RandomSeedGenerator.buildRandom(conf, sequence, clusters, k, measure);
