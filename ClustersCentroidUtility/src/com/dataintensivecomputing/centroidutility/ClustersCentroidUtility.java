@@ -31,8 +31,8 @@ public class ClustersCentroidUtility {
 
 	}
 
-	public ArrayList<Path> getClusterFiles(String clusterParentPath) {
-		Path dirPath = new Path(clusterParentPath);
+	public ArrayList<Path> getClusterFiles(String prefixPath) {
+		Path dirPath = new Path(prefixPath + "/" + "cluster-means/");
 		FileStatus[] fileStatusArr = null;
 		FileSystem fs = null;
 		ArrayList<Path> clusterList = new ArrayList<Path>();
@@ -47,11 +47,15 @@ public class ClustersCentroidUtility {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		//log
+		System.out.println(fileStatusArr[0].getPath().getName());
+		//log
 		FileStatus[] partStatusArr = null;
 		for (FileStatus status : fileStatusArr) {
 			if (status.isDir()) {
-				// System.out.println(status.getPath());
+				//log
+				System.out.println(status.getPath());
+				//log
 				try {
 					partStatusArr = fs.listStatus(status.getPath());
 
@@ -74,7 +78,7 @@ public class ClustersCentroidUtility {
 		return clusterList;
 	}
 
-	public void calculateClusterMeans(String outputDir,
+	public void calculateClusterMeans(String prefixPath,
 			ArrayList<Path> clusterSeqFiles) {
 		for (int j = 0; j < clusterSeqFiles.size(); j++) {
 
@@ -112,7 +116,7 @@ public class ClustersCentroidUtility {
 				System.out.println(totalCount);
 
 				writeClusterToSequenceFile(input.getName(), meanVector,
-						outputDir);
+						prefixPath);
 
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -129,14 +133,14 @@ public class ClustersCentroidUtility {
 	}
 
 	public void writeClusterToSequenceFile(String name, double[] meanVector,
-			String outDir) {
+			String prefixPath) {
 		Path outPath = null;
 		FileSystem fs = null;
 		SequenceFile.Writer writer = null;
 		try {
 
 			fs = FileSystem.get(conf);
-			outPath = new Path(outDir + "/" + name);
+			outPath = new Path(prefixPath + "/cluster-output" + "/" + name);
 			fs.delete(outPath, false);
 			fs.createNewFile(outPath);
 
@@ -206,10 +210,11 @@ public class ClustersCentroidUtility {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		//args[0] - prefix path
 		ClustersCentroidUtility ccu = new ClustersCentroidUtility();
 		ArrayList<Path> clusterSeqFiles = ccu.getClusterFiles(args[0]);
 
-		ccu.calculateClusterMeans(args[1], clusterSeqFiles);
+		ccu.calculateClusterMeans(args[0], clusterSeqFiles);
 	}
 
 }
