@@ -42,13 +42,25 @@ public class KMeansLearner extends Configured{
 	private String outputPath = "";
 	private int k = 0;
 	private ConfigHandler config;
-	private Configured conf;
-	public KMeansLearner()  {
+	private boolean  createSequence=false;
+	private boolean createInitialCluster=false;
+	public KMeansLearner(String configPath)  {
 		// TODO Auto-generated constructor stub
-		ConfigHandler config = ConfigHandler.getInstance() ;
-		config.setProperties();	
+		config = ConfigHandler.getInstance() ;
+		config.setProperties(configPath);	
 		inputPath = ConfigHandler.prop.getProperty("input");
 		outputPath = config.prop.getProperty("output");
+		
+		if(config.prop.getProperty("createSequence").equals("1"))
+		{
+			createSequence = true;
+		}
+		
+		if(config.prop.getProperty("createInitialCluster").equals("1"))
+		{
+			createInitialCluster = true;
+		}
+		
 		k = Integer.valueOf(config.prop.getProperty("k"));
 		
 	}
@@ -61,8 +73,15 @@ public class KMeansLearner extends Configured{
 		Path inPath = new Path(inputPath);
 		Path outPath = new Path(outputPath);
 		
+		if(!fs.exists(outPath))
+		{
+			fs.mkdirs(outPath);
+		}
+		fs.delete(outPath, true);
 		
-		SequenceFile.Writer writer = SequenceFile.createWriter(fs,conf,outPath,Text.class,VectorWritable.class);
+		Path siftSeq = new Path(outputPath + "sift_sequence");
+		
+		SequenceFile.Writer writer = SequenceFile.createWriter(fs,conf,siftSeq,Text.class,VectorWritable.class);
 
 		Text key = new Text();
 		VectorWritable value = new VectorWritable();
@@ -111,25 +130,52 @@ public class KMeansLearner extends Configured{
 		String sequencePath = ConfigHandler.prop.getProperty("sequencePath");
 		
 		Path sequence = new Path(sequencePath);
-		FileSystem.get(conf).delete(sequence, true);
+		//FileSystem.get(conf).delete(sequence, true);
 		
-		
-		TransformVectorsToSequence(conf, inputPath, sequencePath);
+		if(createSequence)
+		{
+			TransformVectorsToSequence(conf, inputPath, sequencePath);
+		}
 			
 		
 		//InputDriver.runJob(input, sequence, "org.apache.mahout.math.RandomAccessSparseVector");
 		
+		
 		Path output = new Path(outputPath);
-		FileSystem.get(conf).delete(output, true);
+		Path clusters = null;
+		 
+		if(createInitialCluster)
+		{
+			if(!FileSystem.get(conf).exists(output))
+			{
+				FileSystem.get(conf).mkdirs(output);
+			}
 		
-		Path clusters = new Path(output, Cluster.INITIAL_CLUSTERS_DIR);
-	    clusters = RandomSeedGenerator.buildRandom(conf, sequence, clusters, k, measure);
+			FileSystem.get(conf).delete(output, true);
+		
+			clusters = new Path(output, Cluster.INITIAL_CLUSTERS_DIR);
+		
+			clusters = RandomSeedGenerator.buildRandom(conf, sequence, clusters, k, measure);
+		}
 	    
-	    // Kmeans clustering
+		Path existingCluster = new Path(output + "/" + Cluster.INITIAL_CLUSTERS_DIR + "/" + "part-randomSeed");
 		
+		if(createInitialCluster)
+		{
+			existingCluster = clusters;
+			
+		}
+		if(!FileSystem.get(conf).exists(existingCluster))
+		{
+			System.out.println("Initial Cluster not found");
+			return;
+		}
+	    // Kmeans clustering
+	    Path siftSeq = new Path(sequencePath + "sift_sequence");
 	    double convergenceDelta = 1e-3;
 	 	int maxIterations = 100;
-	 	KMeansDriver.run(conf, sequence, clusters, output, convergenceDelta, maxIterations, true, 0.0, false);
+	 	System.out.println(siftSeq.getName() + " " + existingCluster.getName() + " " + output.getName());
+	 	KMeansDriver.run(conf, siftSeq, existingCluster, output, convergenceDelta, maxIterations, true, 0.0, false);
 
 	 	// run ClusterDumper
 	 	ClusterDumper clusterDumper = new ClusterDumper(new Path(output, "clusters-*-final"), new Path(output,
@@ -152,7 +198,7 @@ public class KMeansLearner extends Configured{
 	 */
 	public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
 		// TODO Auto-generated method stub
-		KMeansLearner kl = new KMeansLearner();
+		KMeansLearner kl = new KMeansLearner(args[0]);
 		kl.KMeansHandler();
 	}
 
