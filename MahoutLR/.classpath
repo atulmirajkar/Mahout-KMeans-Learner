@@ -15,7 +15,6 @@
 	<classpathentry kind="lib" path="/opt/mahout-distribution-0.9/lib/commons-configuration-1.6.jar"/>
 	<classpathentry kind="lib" path="/opt/mahout-distribution-0.9/lib/commons-beanutils-1.7.0.jar"/>
 	<classpathentry kind="lib" path="/opt/mahout-distribution-0.9/lib/xstream-1.4.4.jar"/>
-	<classpathentry kind="lib" path="/opt/mahout-distribution-0.9/lib/jcl-over-slf4j-1.7.5.jar" sourcepath="/home/atul/.m2/repository/org/slf4j/jcl-over-slf4j/1.7.5/jcl-over-slf4j-1.7.5-sources.jar"/>
 	<classpathentry kind="lib" path="/opt/mahout-distribution-0.9/lib/jersey-core-1.8.jar"/>
 	<classpathentry kind="lib" path="/opt/mahout-distribution-0.9/lib/hamcrest-core-1.3.jar"/>
 	<classpathentry kind="lib" path="/opt/mahout-distribution-0.9/lib/lucene-spatial-4.6.1.jar"/>
@@ -36,8 +35,6 @@
 	<classpathentry kind="lib" path="/opt/mahout-distribution-0.9/lib/jersey-server-1.8.jar"/>
 	<classpathentry kind="lib" path="/opt/mahout-distribution-0.9/lib/jersey-json-1.8.jar"/>
 	<classpathentry kind="lib" path="/opt/mahout-distribution-0.9/lib/icu4j-49.1.jar"/>
-	<classpathentry kind="lib" path="/opt/mahout-distribution-0.9/lib/slf4j-api-1.7.5.jar"/>
-	<classpathentry kind="lib" path="/opt/mahout-distribution-0.9/lib/slf4j-log4j12-1.7.5.jar"/>
 	<classpathentry kind="lib" path="/opt/mahout-distribution-0.9/lib/jettison-1.1.jar"/>
 	<classpathentry kind="lib" path="/opt/mahout-distribution-0.9/lib/lucene-analyzers-common-4.6.1.jar"/>
 	<classpathentry kind="lib" path="/opt/mahout-distribution-0.9/lib/lucene-highlighter-4.6.1.jar"/>
