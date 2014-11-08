@@ -17,13 +17,13 @@ public class ConfigHandler {
 		return singleton;
 		
 	}
-	public void setProperties()
+	public void setProperties(String configPath)
 	{
 		
 		InputStream inStream= null;
 		
 		try {
-			inStream = new FileInputStream("config/config.properties");
+			inStream = new FileInputStream(configPath);
 			prop.load(inStream);
 			
 			
