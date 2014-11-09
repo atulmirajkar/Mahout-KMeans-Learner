@@ -34,6 +34,7 @@ public class MahoutLR {
 	
 	public void LRHandler(String plainFeatureFile,String hadoopPrefixPath) throws IOException
 	{
+		hadoopPrefixPath = hadoopPrefixPath +"/"+ "logistic_regression";
 		//create a sequencefile
 		createSequenceFile(plainFeatureFile,hadoopPrefixPath);
 		
@@ -116,7 +117,11 @@ public class MahoutLR {
 	}
 	/**
 	 * @param args
-	 */
+	 * arg[0] plainFeatureFile
+	 * arg[1] hadoopPrefixPath wo LR folder
+	 * arg[3] num classes
+	 * arg[4] feature length
+ 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		MahoutLR mlr = new MahoutLR(Integer.parseInt(args[2]),Integer.parseInt(args[3]));
