@@ -44,11 +44,10 @@ public class BOWUtility {
 
 	}
 
-	public void BOWHandler(String prefixPath, String clusterParentPath)
+	public void BOWHandler(String localPrefixPath, String clusterParentPath, String relativeLabelFile, String relativeFeatureFile)
 			throws IOException {
 		// read file with png filename and label
-		String trainLabelFile = prefixPath + "/" + "trainsetlabels" + "/"
-				+ "trainLabels.txt";
+		String trainLabelFile = localPrefixPath + "/" + relativeLabelFile;
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new FileReader(trainLabelFile));
@@ -58,7 +57,7 @@ public class BOWUtility {
 		}
 		
 		//write features to a file
-		String featureFile = prefixPath + "/" + "classifierfeatures" + "/" + "featurefile.txt";
+		String featureFile = localPrefixPath + "/" + relativeFeatureFile;
 		BufferedWriter writer = new BufferedWriter(new FileWriter(featureFile));
 
 		// get centroid NamedVectors
@@ -77,7 +76,7 @@ public class BOWUtility {
 			String[] pathAndLabel = line.split("\\t");
 
 			// open image get sift descriptor
-			String imagePath = prefixPath + "/" + pathAndLabel[0];
+			String imagePath = localPrefixPath + "/" + pathAndLabel[0];
 			List<Feature> sift_list = extractImageSift(imagePath);
 
 			centroidCountsMap = getFeatureCounts(sift_list, namedVectorList);
@@ -99,7 +98,7 @@ public class BOWUtility {
 		}//for ach line of labels file
 		
 		reader.close();
-					writer.close();
+		writer.close();
 	}
 
 	public Map<String, Integer> getFeatureCounts(List<Feature> sift_list,
@@ -240,12 +239,29 @@ public class BOWUtility {
 
 	/**
 	 * @param args
+	 *args[0] /home/atul/UMBC/fall2014/yesha/code/
+	 *args[1]	hdfs://hnname:9000//k_50/kmeans-output/cluster-output
+	 *args[2]	/trainsetlabels/trainLabels.txt
+	 *args[3]	/testsetlabels/testLabels.txt
+	 *args[4]	/classifierfeatures/trainfeaturefile.txt
+	 *args[5]	/classifierfeatures/testfeaturefile.txt
+	 *args[6] 0	//create train feature
+	 *args[7] 1	//create test feature
 	 */
 	public static void main(String[] args) {
 
 		BOWUtility bowUtility = new BOWUtility();
 		try {
-			bowUtility.BOWHandler(args[0], args[1]);
+			//BOWHandler(String localPrefixPath, String clusterParentPath, String relativeLabelFile, String relativeFeatureFile)
+			if(Integer.parseInt(args[6])==1)
+			{
+				bowUtility.BOWHandler(args[0], args[1],args[2],args[4]);
+			}
+			if(Integer.parseInt(args[7])==1)
+			{
+				bowUtility.BOWHandler(args[0], args[1],args[3],args[5]);
+			}
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
