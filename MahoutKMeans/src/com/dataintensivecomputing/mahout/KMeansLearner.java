@@ -177,7 +177,8 @@ public class KMeansLearner extends Configured{
 	 	System.out.println(siftSeq.getName() + " " + existingCluster.getName() + " " + output.getName());
 	 	KMeansDriver.run(conf, siftSeq, existingCluster, output, convergenceDelta, maxIterations, true, 0.0, false);
 
-	 	// run ClusterDumper
+	 	/*
+	 	// run ClusterDumper - gives out of memory exception
 	 	ClusterDumper clusterDumper = new ClusterDumper(new Path(output, "clusters-*-final"), new Path(output,
 	 	        "clusteredPoints"));
 	 	  String textoutput = "HumanReadableClusters";
@@ -188,6 +189,7 @@ public class KMeansLearner extends Configured{
 		    	writer.write(entry.toString() + "\n");
 		    }
 		    writer.close();
+		 */
 	}
 
 	/**
