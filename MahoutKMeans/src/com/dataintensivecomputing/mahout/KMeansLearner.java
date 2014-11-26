@@ -44,13 +44,23 @@ public class KMeansLearner extends Configured{
 	private ConfigHandler config;
 	private boolean  createSequence=false;
 	private boolean createInitialCluster=false;
+	private boolean runSequential = false;
+	private int maxIterations = 0;
+	private String initialClusterPath = "";
 	public KMeansLearner(String configPath)  {
 		// TODO Auto-generated constructor stub
 		config = ConfigHandler.getInstance() ;
 		config.setProperties(configPath);	
 		inputPath = ConfigHandler.prop.getProperty("input");
 		outputPath = config.prop.getProperty("output");
-		
+		if(config.prop.getProperty("runSequential").equals("1"))
+		{
+			runSequential = true;
+		}
+		else
+		{
+			runSequential = false;
+		}
 		if(config.prop.getProperty("createSequence").equals("1"))
 		{
 			createSequence = true;
@@ -62,7 +72,17 @@ public class KMeansLearner extends Configured{
 		}
 		
 		k = Integer.valueOf(config.prop.getProperty("k"));
+		maxIterations = Integer.valueOf(config.prop.getProperty("maxIterations"));
 		
+		if(config.prop.getProperty("initialClusterPath").equals("-"))
+		{
+			initialClusterPath = "";
+		}
+		else
+		{
+			initialClusterPath = config.prop.getProperty("initialClusterPath");
+		}
+
 	}
 	
 	public void TransformVectorsToSequence(Configuration conf,
@@ -157,14 +177,24 @@ public class KMeansLearner extends Configured{
 		
 			clusters = RandomSeedGenerator.buildRandom(conf, sequence, clusters, k, measure);
 		}
-	    
-		Path existingCluster = new Path(output + "/" + Cluster.INITIAL_CLUSTERS_DIR + "/" + "part-randomSeed");
+		
+		Path existingCluster = null;
 		
 		if(createInitialCluster)
 		{
 			existingCluster = clusters;
 			
 		}
+		else if(!initialClusterPath.equals(""))
+		{
+			existingCluster = new Path(initialClusterPath);
+		}
+		//called when randomseed already called before
+		else
+		{
+			existingCluster = new Path(output + "/" + Cluster.INITIAL_CLUSTERS_DIR + "/" + "part-randomSeed");
+		}
+		
 		if(!FileSystem.get(conf).exists(existingCluster))
 		{
 			System.out.println("Initial Cluster not found");
@@ -173,9 +203,18 @@ public class KMeansLearner extends Configured{
 	    // Kmeans clustering
 	    Path siftSeq = new Path(sequencePath + "sift_sequence");
 	    double convergenceDelta = 1e-3;
-	 	int maxIterations = 100;
+	 	int maxIterations = this.maxIterations;
 	 	System.out.println(siftSeq.getName() + " " + existingCluster.getName() + " " + output.getName());
-	 	KMeansDriver.run(conf, siftSeq, existingCluster, output, convergenceDelta, maxIterations, true, 0.0, false);
+	 	if(!runSequential)
+	 	{
+	 		KMeansDriver.run(conf, siftSeq, existingCluster, output, convergenceDelta, maxIterations, true, 0.0, false);
+	 	}
+	 	else
+	 	{
+	 		KMeansDriver.run(conf, siftSeq, existingCluster, output, convergenceDelta, maxIterations, true, 0.0, true);
+	 	}
+	 	
+	 	
 
 	 	/*
 	 	// run ClusterDumper - gives out of memory exception
